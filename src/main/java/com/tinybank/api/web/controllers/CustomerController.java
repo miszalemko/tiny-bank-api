@@ -11,6 +11,7 @@ import com.tinybank.api.web.model.entities.CustomerEntity;
 import com.tinybank.api.web.services.AccountService;
 import com.tinybank.api.web.services.CustomerService;
 
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,12 +34,14 @@ public class CustomerController {
     }
 
     @GetMapping()
+    @ApiOperation(value= "gets list of all customers",response = Customer.class,tags = "Customers")
     ResponseEntity<List<Customer>> getAllCustomers() {
         List<CustomerEntity> customerEntities = customerRepository.findAll();
         return ResponseEntity.ok().body(customerService.getCustomersFromCustomerEntities(customerEntities));
     }
 
     @PostMapping(value = "create")
+    @ApiOperation(value= "create customer if don't exist",response = Customer.class,tags = "Customers")
     ResponseEntity<Void> createCustomer(@Valid @RequestBody CreateCustomerCommand customerCommand) {
         Customer customer = customerCommand.toCustomer();
         if (customer == null) {
@@ -55,6 +58,7 @@ public class CustomerController {
     }
 
     @PostMapping(value = "{id}/createAccount")
+    @ApiOperation(value= "creating account for customer if exist",response = Customer.class,tags = "Customers")
     ResponseEntity<Void> createAccountForExistingCustomer(@PathVariable Integer id, @Valid @RequestBody CreateAccountCommand createAccountCommand) {
         Customer customer = customerService.findCustomerById(id);
 
