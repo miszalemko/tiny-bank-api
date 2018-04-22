@@ -1,4 +1,4 @@
-package com.tinybank.api.web;
+package com.tinybank.api.web.model.domain;
 
 /**
  * Created by pkalamucki on 05.04.2018.

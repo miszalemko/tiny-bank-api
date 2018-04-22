@@ -1,4 +1,6 @@
-package com.tinybank.api.web;
+package com.tinybank.api.web.model.domain;
+
+import com.tinybank.api.web.model.domain.Account;
 
 import java.util.ArrayList;
 import java.util.Date;
