@@ -20,4 +20,13 @@ public class AccountService {
         }
         return accounts;
     }
+
+    public List<AccountEntity> getAccountsEntitiesFromAccount(List<Account> accounts) {
+        List<AccountEntity> accountEntities = new ArrayList<>();
+        for(Account account:accounts) {
+            accountEntities.add(new AccountEntity(
+            ));
+        }
+        return accountEntities;
+    }
 }

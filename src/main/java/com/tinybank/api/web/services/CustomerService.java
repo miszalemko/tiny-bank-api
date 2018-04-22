@@ -1,12 +1,14 @@
 package com.tinybank.api.web.services;
 
-import com.tinybank.api.web.CustomerRepository;
+import com.tinybank.api.web.dto.CustomerRepository;
 import com.tinybank.api.web.model.domain.Customer;
 import com.tinybank.api.web.model.entities.CustomerEntity;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerService {
@@ -22,6 +24,7 @@ public class CustomerService {
 
     public List<Customer> getCustomersFromCustomerEntities(List<CustomerEntity> customerEntities) {
         List<Customer> customers = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
         for(CustomerEntity entity:customerEntities) {
             customers.add(new Customer(
                     String.valueOf(entity.getId()),
@@ -45,14 +48,13 @@ public class CustomerService {
                 accountService.getAccountsFromAccountEntities(customerEntity.getAccounts())
         );
     }
-    public Customer getCustomerFromCustomerEntityAccountsAreNull(CustomerEntity customerEntity) {
-        return new Customer(
-                String.valueOf(customerEntity.getId()),
-                customerEntity.getName(),
-                customerEntity.getSurname(),
-                customerEntity.getBirthDate(),
-                customerEntity.getAddress(),
-                null
-        );
+
+    public CustomerEntity getCustomerEntityFromCustomer (Customer customer) {
+        return new CustomerEntity(customer.getName(),customer.getSurname(),customer.getBirthDate(),customer.getAddress(),new ArrayList<>());
+    }
+
+    public List<CustomerEntity> findCustomerByNameAndSurname(Customer customer) {
+        CustomerEntity customerEntity = getCustomerEntityFromCustomer(customer);
+        return customerRepository.findByNameAndSurname(customerEntity.getName(),customerEntity.getSurname());
     }
 }
