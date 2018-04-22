@@ -2,6 +2,7 @@ package com.tinybank.api.web.services;
 
 import com.tinybank.api.web.dto.CustomerRepository;
 import com.tinybank.api.web.model.domain.Customer;
+import com.tinybank.api.web.model.entities.AccountEntity;
 import com.tinybank.api.web.model.entities.CustomerEntity;
 import org.springframework.stereotype.Service;
 
@@ -50,11 +51,23 @@ public class CustomerService {
     }
 
     public CustomerEntity getCustomerEntityFromCustomer (Customer customer) {
-        return new CustomerEntity(customer.getName(),customer.getSurname(),customer.getBirthDate(),customer.getAddress(),new ArrayList<>());
+        return new CustomerEntity(Integer.valueOf(customer.getId()),
+                customer.getName(),
+                customer.getSurname(),
+                customer.getBirthDate(),
+                customer.getAddress(),
+                accountService.getAccountEntitiesFromAccounts(customer.getAccounts()));
     }
 
     public List<CustomerEntity> findCustomerByNameAndSurname(Customer customer) {
         CustomerEntity customerEntity = getCustomerEntityFromCustomer(customer);
         return customerRepository.findByNameAndSurname(customerEntity.getName(),customerEntity.getSurname());
     }
+
+    public Customer findCustomerById(Integer id) {
+        Optional<CustomerEntity> customerEntityOptional = customerRepository.findById(id);
+        CustomerEntity customerEntity = customerEntityOptional.get();
+        return getCustomerFromCustomerEntity(customerEntity);
+    }
+
 }

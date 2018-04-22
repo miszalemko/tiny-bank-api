@@ -3,18 +3,19 @@ package com.tinybank.api.web.controllers;
 import com.tinybank.api.web.dto.CustomerRepository;
 
 
+import com.tinybank.api.web.model.commands.CreateAccountCommand;
 import com.tinybank.api.web.model.commands.CreateCustomerCommand;
 import com.tinybank.api.web.model.domain.Customer;
+import com.tinybank.api.web.model.entities.AccountEntity;
 import com.tinybank.api.web.model.entities.CustomerEntity;
+import com.tinybank.api.web.services.AccountService;
 import com.tinybank.api.web.services.CustomerService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -23,10 +24,12 @@ public class CustomerController {
 
     private final CustomerRepository customerRepository;
     private final CustomerService customerService;
+    private final AccountService accountService;
 
-    public CustomerController(CustomerRepository customerRepository, CustomerService customerService) {
+    public CustomerController(CustomerRepository customerRepository, CustomerService customerService, AccountService accountService) {
         this.customerRepository = customerRepository;
         this.customerService = customerService;
+        this.accountService = accountService;
     }
 
     @GetMapping()
@@ -38,7 +41,7 @@ public class CustomerController {
     @PostMapping(value = "create")
     ResponseEntity<Void> createCustomer(@Valid @RequestBody CreateCustomerCommand customerCommand) {
         Customer customer = customerCommand.toCustomer();
-        if(customer==null) {
+        if (customer == null) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         List<CustomerEntity> customerEntities = customerService.findCustomerByNameAndSurname(customer);
@@ -51,4 +54,18 @@ public class CustomerController {
         }
     }
 
+    @PostMapping(value = "{id}/createAccount")
+    ResponseEntity<Void> createAccountForExistingCustomer(@PathVariable Integer id, @Valid @RequestBody CreateAccountCommand createAccountCommand) {
+        Customer customer = customerService.findCustomerById(id);
+
+        if (customer == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        CustomerEntity customerEntity = customerService.getCustomerEntityFromCustomer(customer);
+        List<AccountEntity> accountEntities = customerEntity.getAccounts();
+        accountEntities.add(accountService.getAccountEntityFromAccount(createAccountCommand.toAccount()));
+        customerEntity.setAccounts(accountEntities);
+        customerRepository.save(customerEntity);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }
